@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+
+
+
+{% block content_left %}
+
+    <div class="panel panel-warning">
+                <div class="panel-heading"> 功能</div>
+                <div class="panel-body">
+                    <p><a href="/blog/add_article">添加文章</a></p>
+                </div>
+            </div>
+{% endblock %}
+
+{% block content_right %}
+    <table class="table-bordered table table-striped">
+        <tr>
+            <td>标题</td>
+            <td>评论数</td>
+            <td>点赞数</td>
+            <td>操作</td>
+            <td>操作</td>
+        </tr>
+
+    {% for article in article_list %}
+        <tr article_id="{{ article.pk }}">
+            <td>{{ article.title }}</td>
+            <td>{{ article.comment_count }}</td>
+            <td>{{ article.up_count }}</td>
+            <td><a href="/blog/edit_article/?article_id={{ article.pk }}">编辑</a></td>
+            <td><a href="javascript:;" class="btn_del" article_id="{{ article.pk }}">删除</a></td>
+        </tr>
+    {% endfor %}
+    </table>
+    <script>
+    console.log($('#btn_del'));
+    $('.btn_del').click(function (){
+        console.log('aa');
+        $.ajax({
+            url: '/blog/delete_article/',
+            type: 'get',
+            data: {
+              article_id: $(this).attr('article_id')
+            },
+
+            success: function (data){
+                if (data.success){
+                    $("[article_id="+data.success+"]").remove()
+                }else{
+                    console.log('ss');
+                }
+            }
+
+        })
+    })
+
+    </script>
+
+{% endblock %}
+
+
+

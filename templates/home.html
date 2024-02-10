@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content_right %}
+
+    <div class="article-list">
+                {% for article in articles %}
+                    <div class="article-item clearfix">
+                        <h5><a href="/blog/{{ request.user.username }}/arciles/{{ article.nid }}">{{ article.title }}</a></h5>
+                        <div class="article-desc">
+{#                            <span class="media-left"><img height="50" width="50" src="media{{ article.user.avatar }}" alt="图片加载失败"></span>#}
+                            <span class="media-right">{{ article.desc }}</span>
+                        </div>
+                        <div class="article-floor small pub_info">
+                            <span>发布于：{{ article.create_time|date:'Y-m-d H:i' }}</span>&nbsp;&nbsp;
+                            <span class="glyphicon glyphicon-comment"></span>评论数({{ article.comment_count }})&nbsp;&nbsp;
+                            <span class="glyphicon glyphicon-thumbs-up"></span>点赞数({{ article.up_count }})&nbsp;&nbsp;
+                        </div>
+                    </div>
+                    <hr>
+                {% endfor %}
+
+            </div>
+{% endblock %}

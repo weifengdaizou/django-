@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="/static/blog/bootstrap/css/bootstrap.css">
+    <script src="/static/jquery-3.3.1.js"></script>
+</head>
+<body>
+
+
+
+<div class="container">
+<h2 >登录</h2>
+    <div class="row">
+        <div class="col-md-6 col-lg-offset-3">
+
+            <form action="" method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="user">用户名</label>
+                    <input type="text" id="user" class="form-horizontal">
+                </div>
+                <div>
+                    <label for="pwd">密码</label>
+                    <input type="password" id="pwd" class="form-control">
+                </div>
+                
+                <div>
+
+                    <label for="valid_code">验证码</label>
+                    <div class="col-md-6">
+                        <img class="valid_img" width="250" height="60" src="/blog/getvalidCode/" alt="图片加载失败">
+                        <input type="button" value="刷新验证码" id="valid_btn">
+                    </div>
+                    <div class="col-md-6">
+                        <input type="text" id="valid_code">
+                    </div>
+                </div>
+                
+                <input type="button" class="button btn-default login_btn" value='登录'><span class="error"></span>
+                <a href="/blog/register" class="btn-link">注册</a>
+            </form>
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+    $('#valid_btn').click(function () {
+         $('.valid_img')[0].src += '?'
+
+    })
+
+    $('.login_btn').click(function (){
+        {#alert('ss')#}
+        $.ajax({
+            url:'/blog/login/',
+            type: 'post',
+            data:{
+                username: $('#user').val(),
+                pwd: $('#pwd').val(),
+                valid_code: $('#valid_code').val(),
+                csrfmiddlewaretoken: $('[name = "csrfmiddlewaretoken"]').val(),
+
+            },
+            success: function (data){
+
+                if (data.user){
+                    location.href='/blog/index/'
+                }else{
+                    console.log(data.msg)
+                    $('.error').text(data.msg).css({'color': 'red', 'margin': '20px'})
+                }
+
+            }
+
+        })
+    })
+
+</script>
+
+
+</body>
+</html>

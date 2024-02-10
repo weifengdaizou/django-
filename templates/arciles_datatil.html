@@ -1,0 +1,220 @@
+{% extends 'base.html' %}
+
+{% block head %}
+
+    <link rel="stylesheet" href="/static/blog/css/datail.css">
+{% endblock %}
+
+{% block content_right %}
+
+    <div>
+        <h1 class="text-center">{{ arcile.title }}</h1>
+        <p>{{ arcile.content|safe }}</p>
+    </div>
+    <div class="clearfix">
+        <div id="div_digg">
+            <div class="diggit active">
+                <span class="diggnum" id="digg_count">{{ arcile.up_count }}</span>
+            </div>
+            <div class="buryit active">
+                <span class="burynum" id="bury_count">{{ arcile.down_count }}</span>
+            </div>
+            <div class="clear"></div>
+            <div class="diggword" id="digg_tips">
+                <span class="warning"></span>
+            </div>
+        </div>
+
+    </div>
+
+    <div>
+        {% csrf_token %}
+    </div>
+
+    <div class="comments">
+        <div>
+            <button class="comment_tree_btn">评论树</button>
+            <div class="comment_tree">
+
+            </div>
+        </div>
+        <div class="">
+            <div class="clear">
+                <ul class="list-group comment_list">
+                    {% for filed in comment_list %}
+                        <li class="list-group-item">
+                            <p>
+                                <a href=""># {{ forloop.counter }}楼&nbsp;&nbsp;</a>
+                                <span>{{ filed.create_tiem|date:'Y-m-d h:i' }}&nbsp;&nbsp;</span>
+                                <a href="">{{ filed.user.username }}</a>&nbsp;&nbsp;
+                                <a href="javascript:;" class="pull-right reply_btn" comment_pk="{{ filed.pk }}"
+                                   username="{{ filed.user.username }}"> <span>回复</span></a>
+                            </p>
+                            {% if filed.parent_comment_id %}
+                                <div class="well pid_info">
+                                    <p>
+                                        {{ filed.parent_comment.user.username }}: {{ filed.parent_comment.content }}
+                                    </p>
+                                </div>
+
+                            {% endif %}
+                            <span class="">{{ filed.content }}</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+
+        <p>评论</p>
+        <h5>用户{{ request.user.username }}</h5>
+        <p>评论内容：</p>
+        <p>
+            <textarea name="comment" id="com" cols="60" rows="10"></textarea>
+        </p>
+        <button class="btn-comments btn-default">提交评论</button>
+    </div>
+
+    <script>
+        $('#div_digg .active').click(function () {
+            var is_up = $(this).hasClass('diggit');
+            $.ajax({
+                url: '/blog/upup/',
+                type: 'post',
+                data: {
+                    article: {{ arcile.nid }},
+                    csrfmiddlewaretoken: $('[name="csrfmiddlewaretoken"]').val(),
+                    is_up: is_up,
+
+                },
+                success: function (data) {
+                    $('#digg_count').html(data.up_count);
+                    $('#bury_count').html(data.down_count);
+                    $('#digg_tips .warning').html('');
+                    if (data.msg) {
+                        $('#digg_tips .warning').html(data.msg);
+
+                        setTimeout(function () {
+                            $('#digg_tips .warning').html('');
+                        }, 1000)
+
+                    }
+
+                }
+            })
+        })
+        var pid = null;
+        $('.btn-comments').click(function () {
+
+            var connent = $('#com').val();
+
+            $.ajax({
+                url: '/blog/comment/',
+                type: 'post',
+                data: {
+                    csrfmiddlewaretoken: $('[name="csrfmiddlewaretoken"]').val(),
+                    content: connent,
+                    pid: pid,
+                    article_id: {{ arcile.nid }},
+                },
+                success: function (data) {
+                    console.log(data)
+                    pid = null;
+                    var s = `
+                        <li class="list-group-item">
+                            <p>
+                                <a href="">${data.create_time}楼&nbsp;&nbsp;</a>
+                               <span>${data.create_time}&nbsp;&nbsp;</span>
+                                <a href="">${data.user}</a>&nbsp;&nbsp;
+                                 <a href="javascript:;" class="pull-right reply_btn" comment_pk="${data.comment_pk}" username="${data.user}"> <span>回复</span></a>
+
+                            </p>
+                            <span class="">${data.content}</span>
+
+                         </li>
+                    `;
+                    $('ul.comment_list').append(s);
+                    $('#com').val('');
+                },
+            })
+
+
+        })
+
+        $('.comment_list').on('click', '.reply_btn', function () {
+
+            var val = '@' + $(this).attr('username') + '\n';
+            $('#com').focus();
+            $('#com').val(val);
+
+            pid = $(this).attr('comment_pk');
+
+        })
+
+        $('.comment_tree_btn').click(function () {
+            $('.comment_tree').empty();
+            $.ajax({
+                url: '/blog/set_tree',
+                type: 'get',
+                data: {
+                    article_id: {{ arcile.nid }},
+
+                },
+                success: function (data) {
+                    $.each(data, function (index, comment_obj) {
+                        if (!comment_obj.parent_comment_id) {
+                            var ser = `
+                            <div comment_id = ${comment_obj.pk} class="list-group-item comment_item" >
+                                <p>${comment_obj.content}</p>
+                            </div>
+                            `;
+                            $('.comment_tree').append(ser);
+                        } else {
+                            var s = `
+                            <div comment_id = ${comment_obj.pk} class = "comment_item">
+                                <p>${comment_obj.content}</p>
+                            </div>
+                            `;
+                            $('[comment_id=' + comment_obj.parent_comment_id + ']').append(s);
+
+                        }
+                    })
+
+
+                }
+            })
+
+        })
+
+        $.ajax({
+                url: '/blog/set_tree',
+                type: 'get',
+                data: {
+                    article_id: {{ arcile.nid }},
+
+                },
+                success: function (data) {
+                    $.each(data, function (index, comment_obj) {
+                        if (!comment_obj.parent_comment_id) {
+                            var ser = `
+                            <div comment_id = ${comment_obj.pk} class="list-group-item comment_item" >
+                                <p>${comment_obj.content}</p>
+                            </div>
+                            `;
+                            $('.comment_tree').append(ser);
+                        } else {
+                            var s = `
+                            <div comment_id = ${comment_obj.pk} class = "comment_item">
+                                <p>${comment_obj.content}</p>
+                            </div>
+                            `;
+                            $('[comment_id=' + comment_obj.parent_comment_id + ']').append(s);
+
+                        }
+
+                    })
+                }
+            })
+    </script>
+{% endblock %}
+

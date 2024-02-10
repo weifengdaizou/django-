@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="/static/blog/bootstrap-3.4.1-dist/css/bootstrap.css">
+    <script src="/static/jquery-3.3.1.js"></script>
+    <script src="/static/blog/bootstrap-3.4.1-dist/js/bootstrap.min.js"></script>
+    <style>
+        .pub_info{
+            margin-top: 10px;
+        }
+        .glyphicon-comment{
+            margin-top: -1px;
+        }
+        .pub_info{
+            float: right;
+        }
+    </style>
+</head>
+<body>
+<h3>{{ request.user.username }}的个人标签分类： {{ tit }}</h3>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="panel panel-warning">
+                <div class="panel-heading"> 站点分类</div>
+                <div class="panel-body">
+                    {% for category in category_list %}
+                        <div>
+                            <span><a href="#">{{ category.title }} <span>({{ category.c }})</span></a></span>
+                        </div>
+                    {% endfor %}
+
+                </div>
+            </div>
+            <div class="panel panel-primary">
+                <div class="panel-heading"> 标签分类</div>
+                <div class="panel-body">
+                    {% for tag in tags %}
+                        <div>
+                            <span><a href="/blog/{{ request.user.username }}/tag/{{ tag.title }}">{{ tag.title }} <span>({{ tag.c }})</span></a></span>
+                        </div>
+                    {% endfor %}
+
+                </div>
+            </div>
+        <div class="panel panel-primary">
+                <div class="panel-heading"> 日期分类</div>
+                <div class="panel-body">
+                    {% for date in data_list %}
+                        <div>
+                            <span><a href="#">{{ date.y_m_d }} <span>({{ date.c }})</span></a></span>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+
+             <div class="article-list">
+                {% for article in articles %}
+                    <div class="article-item clearfix">
+                        <h5><a href="#">{{ article.title }}</a></h5>
+                        <div class="article-desc">
+{#                            <span class="media-left"><img height="50" width="50" src="media{{ article.user.avatar }}" alt="图片加载失败"></span>#}
+                            <span class="media-right">{{ article.desc }}</span>
+                        </div>
+                        <div class="article-floor small pub_info">
+                            <span>发布于：{{ article.create_time|date:'Y-m-d H:i' }}</span>&nbsp;&nbsp;
+                            <span class="glyphicon glyphicon-comment"></span>评论数({{ article.comment_count }})&nbsp;&nbsp;
+                            <span class="glyphicon glyphicon-thumbs-up"></span>点赞数({{ article.up_count }})&nbsp;&nbsp;
+                        </div>
+                    </div>
+                    <hr>
+                {% endfor %}
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

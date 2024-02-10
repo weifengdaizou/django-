@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="/static/blog/bootstrap-3.4.1-dist/css/bootstrap.css">
+    <script src="/static/jquery-3.3.1.js"></script>
+    <script src="/static/blog/bootstrap-3.4.1-dist/js/bootstrap.min.js"></script>
+    {% block head%}
+        
+    {% endblock %}
+    <style>
+        .pub_info {
+            margin-top: 10px;
+        }
+
+        .glyphicon-comment {
+            margin-top: -1px;
+        }
+
+        .pub_info {
+            float: right;
+        }
+    </style>
+</head>
+<body>
+
+
+<nav class="navbar navbar-default">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                    data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/blog/{{ request.user.username }}">
+                {% block title %}
+                    {{ bolg.title }}
+                {% endblock %}
+            </a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav">
+                <li class="active"><a href="#">随笔 <span class="sr-only">(current)</span></a></li>
+                <li><a href="/">主页</a></li>
+                <li><a href="#">博文</a></li>
+
+            </ul>
+            <form class="navbar-form navbar-left">
+                <div class="form-group">
+                    <input type="text" class="form-control" placeholder="Search">
+                </div>
+                <button type="submit" class="btn btn-default">Submit</button>
+            </form>
+            <ul class="nav navbar-nav navbar-right">
+                {% if request.user.is_authenticated %}
+                    <li><a href="#">Link</a></li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                           aria-expanded="false">用户：{{ request.user.username }}<span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#">修改密码</a></li>
+                            <li><a href="#">修改头像</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><a href="/blog/logout/">注销</a></li>
+                        </ul>
+                    </li>
+                {% else %}
+                    <li><a href="/blog/login/">登录</a></li>
+                    <li><a href="/blog/register/">注册</a></li>
+                {% endif %}
+
+            </ul>
+        </div><!-- /.navbar-collapse -->
+    </div><!-- /.container-fluid -->
+</nav>
+
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-3">
+        {% block content_left %}
+            <div class="panel panel-warning">
+                <div class="panel-heading"> 标签分类</div>
+                <div class="panel-body">
+                    {% for category in category_list %}
+                        <div>
+                            <span><a
+                                    href="/blog/{{ bolg.site_name }}/category/{{ category.title }}">{{ category.title }} <span>({{ category.c }})</span></a></span>
+                        </div>
+                    {% endfor %}
+
+                </div>
+            </div>
+            <div class="panel panel-primary">
+                <div class="panel-heading"> 关键字分类</div>
+                <div class="panel-body">
+                    {% for tag in tags %}
+                        <div>
+                            <span><a href="/blog/{{ bolg.site_name }}/tag/{{ tag.title }}">{{ tag.title }} <span>({{ tag.c }})</span></a></span>
+                        </div>
+                    {% endfor %}
+
+                </div>
+            </div>
+            <div class="panel panel-primary">
+                <div class="panel-heading"> 日期分类</div>
+                <div class="panel-body">
+                    {% for date in data_list %}
+                        <div>
+                            <span><a
+                                    href="/blog/{{ request.user.username }}/date/{{ date.y_m_d }}">{{ date.y_m_d }} <span>({{ date.c }})</span></a></span>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endblock %}
+
+        </div>
+
+        <div class="col-md-9">
+            {% block content_right %}
+
+            {% endblock %}
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

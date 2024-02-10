@@ -1,0 +1,179 @@
+{% extends 'base.html' %}
+
+
+{% block head %}
+    <style>
+        .title {
+            background-color: green;
+            color: white;
+            height: 30px;
+            line-height: 30px;
+        }
+
+        .error{
+            color: red;
+        }
+
+
+    </style>
+{% endblock %}
+
+{% block content_left %}
+
+    <div class="panel panel-warning">
+        <div class="panel-heading"> 功能</div>
+        <div class="panel-body">
+            <p><a href="/blog/add_article">添加文章</a></p>
+        </div>
+    </div>
+{% endblock %}
+
+
+{% block content_right %}
+
+    <h5 class="title text-center">添加文章</h5>
+    <div class="form-group">
+        <label for="bt">标题</label>
+        <input type="text" id="bt">
+    </div>
+
+    <div class="form-group">
+        <label for="category">选择文章标签</label>
+        <select name="category" id="category">
+            {% for category in category_list %}
+                <option value="{{ category.pk }}">{{ category.title }}</option>
+            {% endfor %}
+        </select>
+            <span>标题不够？</span>
+            <span><input type="text" id="category_text"></span>
+            <span><button id="btn_add_category" class="btn-small">添加标签</button></span>
+            <span>&nbsp;&nbsp;&nbsp;</span>
+            <span id="category_error" class="error"></span>
+
+    </div>
+
+    <div class="form-group">
+        <label for="tag">选择文章关键字</label>
+        <select name="tag" id="tag" multiple>
+            {% for tag in tag_list %}
+                <option value="{{ tag.pk }}">{{ tag.title }}</option>
+            {% endfor %}
+        </select>
+            <span>关键字不够？</span>
+            <span><input type="text" id="tag_text"></span>
+            <span><button id="btn_add_tag" class="btn-small">添加关键字</button></span>
+            <span>&nbsp;&nbsp;&nbsp;</span>
+            <span id="tag_error" class="error"></span>
+    </div>
+
+
+    <div>
+        {% csrf_token %}
+    </div>
+    <div class="form-group">
+        <label for="jj">文章简介</label>
+        <input type="text" id="jj">
+    </div>
+
+    <div class="content form-group">
+        <p>文章详情</p>
+        <textarea name="ttt" id="ttt" cols="70" rows="25"></textarea>
+        <button type="button" class="btn btn-default btn-lg" id="btn_ttt">提交</button>
+    </div>
+
+    <script charset="utf-8" src="/static/blog/kindeditor/kindeditor-all-min.js"></script>
+    <script charset="utf-8" src="/static/blog/kindeditor/lang/zh-CN.js"></script>
+    <script>
+        KindEditor.ready(function (K) {
+            window.editor = K.create('#ttt', {
+                afterBlur: function(){this.sync();}
+            });
+        });
+
+        $('#btn_ttt').click(function () {
+            var category = $('#category').val();
+            var tag = $('#tag').val();
+            console.log(category, tag);
+            $.ajax({
+                url: '/blog/add_article/',
+                type: 'post',
+                data: {
+                    csrfmiddlewaretoken: $('[name="csrfmiddlewaretoken"]').val(),
+                    title: $('#bt').val(),
+                    content: $('#ttt').val(),
+                    desc: $('#jj').val(),
+                    category: $('#category').val(),
+                    tag: $('#tag').val(),
+                },
+                success: function (data){
+                    {#console.log(data)#}
+                    location.href = data
+                }
+            })
+        })
+
+        $('#btn_add_category').click(function (){
+            $.ajax({
+                url: '/blog/add_category/',
+                type: 'post' ,
+                data:{
+                    csrfmiddlewaretoken: $('[name="csrfmiddlewaretoken"]').val(),
+                    title: $('#category_text').val()
+                },
+                success: function (data){
+                    if (data.success){
+                        alert('添加成功');
+                        var s = `
+
+                        <option value="${ data.category_pk }">${ data.category_title }</option>
+                        `
+                        $('#category').append(s);
+
+                    }else{
+                        $('#category_error').html(data.msg);
+                        setTimeout(function (){
+                            $('#category_error').html('');
+                        }, 2000);
+                    }
+                }
+            })
+        })
+
+
+        $('#btn_add_tag').click(function (){
+            $.ajax({
+                url: '/blog/add_tag/',
+                type: 'post' ,
+                data:{
+                    csrfmiddlewaretoken: $('[name="csrfmiddlewaretoken"]').val(),
+                    title: $('#tag_text').val()
+                },
+                success: function (data){
+                    if (data.success){
+                        alert('添加成功');
+                        var s = `
+
+                        <option value="${ data.tag_pk }">${ data.tag_title }</option>
+                        `
+                        $('#tag').append(s);
+
+                    }else{
+                        $('#tag_error').html(data.msg);
+                        setTimeout(function (){
+                            $('#tag_error').html('');
+                        }, 2000);
+                    }
+                }
+            })
+        })
+
+    </script>
+
+
+{% endblock %}
+
+
+
+
+
+

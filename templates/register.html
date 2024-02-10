@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>注册</title>
+    <link rel="stylesheet" href="/static/blog/bootstrap/css/bootstrap.css">
+    <script src="/static/jquery-3.3.1.js"></script>
+    <style>
+        .container {
+            margin-left: 250px;
+        }
+        .error{
+            color: red;
+        }
+
+    </style>
+</head>
+<body>
+
+
+<div class="container">
+    <h2>注册</h2>
+    <div class="row">
+        <div class="col-md-6 col-lg-offset-3">
+
+            <form action="" method="post">
+                {% csrf_token %}
+
+                {% for field in forms %}
+                    <div class="form-group">
+                        <label for="{{ field.auto_id }}">{{ field.label }}</label>
+                        {{ field }} <span class="error"></span>
+                    </div>
+                {% endfor %}
+
+
+                <div class="form-group">
+                    <label for="avatar">
+                        头像
+                        <img class="avatar_img" width="100" height="60" src="" alt="图片加载失败">
+                    </label>
+
+                    <input type="file" id="avatar" hidden="hidden">
+                </div>
+
+                <div class="form-group">
+                    <label for="valid_code">验证码</label>
+                    <div class="col-md-6">
+                        <img class="valid_img" width="250" height="60" src="/blog/getvalidCode/" alt="图片加载失败">
+                        <input type="button" value="刷新验证码" id="valid_btn">
+                    </div>
+                    <div class="col-md-6">
+                        <input type="text" id="valid_code">
+                    </div>
+                </div>
+
+                <input type="button" class="button btn-default register-btn" value='注册'><span class="error"></span>
+                <a href="/blog/login">登录</a>
+            </form>
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+    $('#valid_btn').click(function () {
+        $('.valid_img')[0].src += '?'
+
+    })
+
+
+    $('.register-btn').click(function () {
+        {#alert('ss')#}
+        var formadata = new FormData();
+        formadata.append(
+            'username', $('#id_username').val()
+        );
+        formadata.append(
+            'password', $('#id_password').val()
+        );
+         formadata.append(
+            're_password', $('#id_re_password').val()
+        );
+        formadata.append(
+            'valid_code', $('#valid_code').val()
+        );
+        formadata.append(
+            'telephone', $('#id_telephone').val()
+        );
+        formadata.append(
+            'csrfmiddlewaretoken', $('[name = "csrfmiddlewaretoken"]').val()
+        );
+        formadata.append(
+            'avater', $("#avatar")[0].files[0]
+        );
+        $.ajax({
+            url: '/blog/register/',
+            type: 'post',
+            contentType: false,
+            processData: false,
+            data: formadata,
+            success: function (data) {
+
+                if (data.user){
+                    location.href='/blog/login/'
+                }else{
+                    $('span.error').html('')
+                    $.each(data.msg, function (field, error_list) {
+                        console.log(field, error_list[0])
+                        if (field == '__all__'){
+                            $('#id_re_password').next().html(error_list[0])
+                        }else{
+                            $('#id_' + field).next().html(error_list[0])
+                        }
+
+                    })
+                }
+
+            }
+
+        })
+    })
+
+    $('#avatar').change(function () {
+        var file_obj = $(this)[0].files[0];
+
+        var read = new FileReader();
+
+        read.readAsDataURL(file_obj)
+
+        read.onload = function () {
+            $('.avatar_img').attr('src', read.result)
+        }
+
+
+    })
+
+</script>
+
+
+</body>
+</html>
