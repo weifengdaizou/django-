@@ -82,22 +82,20 @@ def register(request):
 
         valid_code = request.POST.get('valid_code')
         valid_code_true = request.session.get('valid_code')
-        print(valid_code_true, valid_code)
         # if valid_code ==valid_code_true:
         userforms = my_forms.UserForms(request.POST)
-
+        print(userforms.errors)
         if userforms.is_valid():
             response['user'] = userforms.cleaned_data
-            print(userforms.cleaned_data)
             avater = request.FILES.get('avater')
             username = userforms.cleaned_data.get('username')
             password = userforms.cleaned_data.get('password')
             telephone = userforms.cleaned_data.get('telephone')
+
             if avater:
                 Userinfo.objects.create_user(username=username, password=password, telephone=telephone, avatar=avater)
             else:
                 Userinfo.objects.create_user(username=username, password=password, telephone=telephone)
-
         else:
             response['msg'] = userforms.errors
         # else:

@@ -21,7 +21,10 @@ class UserForms(forms.Form):
                                   label='确认密码',
                                   widget=widgets.PasswordInput())
     telephone = forms.CharField(min_length=11,
-                                error_messages={'required': '该字段不能为空'},
+                                max_length=11,
+                                error_messages={'required': '该字段不能为空',
+                                                'max_length': '输入内容超过11位',
+                                                'min_length': '输入内容小于11位'},
                                 label='手机号')
 
 

@@ -37,7 +37,7 @@
                 <div class="form-group">
                     <label for="avatar">
                         头像
-                        <img class="avatar_img" width="100" height="60" src="" alt="图片加载失败">
+                        <img class="avatar_img" width="100" height="60" src="" alt="图片加载失败 点击上传头像">
                     </label>
 
                     <input type="file" id="avatar" hidden="hidden">
@@ -102,13 +102,11 @@
             processData: false,
             data: formadata,
             success: function (data) {
-
                 if (data.user){
                     location.href='/blog/login/'
                 }else{
                     $('span.error').html('')
                     $.each(data.msg, function (field, error_list) {
-                        console.log(field, error_list[0])
                         if (field == '__all__'){
                             $('#id_re_password').next().html(error_list[0])
                         }else{
@@ -116,6 +114,9 @@
                         }
 
                     })
+                    setTimeout(function (){
+                        $('span.error').html('');
+                    }, 2000)
                 }
 
             }
