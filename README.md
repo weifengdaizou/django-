@@ -1,1 +1,1 @@
-环境要求 django+pymysql + redis
+环境要求 django+pymysql
