@@ -63,6 +63,8 @@ def getvalidCode(request):
         font = ImageFont.load_default()
         sr1 += random_char
         draw.text((50 + 50 * i, 20), random_char, font=font)
+
+    print(sr1)
     request.session['valid_code'] = sr1
     f = BytesIO()
     img.save(f, 'png')
@@ -82,6 +84,7 @@ def register(request):
 
         valid_code = request.POST.get('valid_code')
         valid_code_true = request.session.get('valid_code')
+<<<<<<< HEAD
         # if valid_code ==valid_code_true:
         userforms = my_forms.UserForms(request.POST)
         print(userforms.errors)
@@ -96,10 +99,30 @@ def register(request):
                 Userinfo.objects.create_user(username=username, password=password, telephone=telephone, avatar=avater)
             else:
                 Userinfo.objects.create_user(username=username, password=password, telephone=telephone)
+=======
+        print(valid_code_true, valid_code)
+        if valid_code.upper() == valid_code_true.upper():
+            userforms = my_forms.UserForms(request.POST)
+
+            if userforms.is_valid():
+                response['user'] = userforms.cleaned_data
+                print(userforms.cleaned_data)
+                avater = request.FILES.get('avater')
+                username = userforms.cleaned_data.get('username')
+                password = userforms.cleaned_data.get('password')
+                telephone = userforms.cleaned_data.get('telephone')
+
+                bolg_obj = Bole.objects.create(title=f'{username}的站点', site_name=username, theme=f'{username}主题')
+                if avater:
+                    Userinfo.objects.create_user(username=username, password=password, telephone=telephone, avatar=avater, bolg=bolg_obj)
+                else:
+                    Userinfo.objects.create_user(username=username, password=password, telephone=telephone, bolg=bolg_obj)
+
+            else:
+                response['msg'] = userforms.errors
+>>>>>>> dev
         else:
-            response['msg'] = userforms.errors
-        # else:
-        #     response['msg'] = {'error': '验证码校验失败'}
+            response['msg'] = {'error': '验证码校验失败'}
         return JsonResponse(response)
 
     userforms = my_forms.UserForms(request.POST)
@@ -267,12 +290,11 @@ def add_category(request):
     if title:
         user_obj = Userinfo.objects.get(pk=request.user.pk)
         bold_obj = user_obj.bolg
-
         ret = Category.objects.filter(title=title, bolg=bold_obj).exists()
-
         if ret:
             response['msg'] = '该标签已存在'
         else:
+            print(bold_obj.pk)
             category_obj = Category.objects.create(title=title, bolg=bold_obj)
             response['success'] = '添加成功'
             response['category_pk'] = category_obj.pk
@@ -293,27 +315,25 @@ def add_article(request):
         desc = request.POST.get('desc')
         tag = request.POST.getlist('tag[]')
         category = request.POST.get('category')
-
         soup = BeautifulSoup(content, 'lxml')
-        print(soup.text)
-        for tag in soup.find_all():
-            # if tag.name
-            print(tag.name)
-        # with transaction.atomic():
-        #     article_obj = Article.objects.create(title=title, desc=desc, content=content, category_id=category, user=user_obj)
-        #     article_id = article_obj.pk
-        #     article_tag_list = []
-        #     for i in tag:
-        #         article_tag = Article2Tag(tag_id=int(i), article_id=article_id)
-        #         article_tag_list.append(article_tag)
-        #     Article2Tag.objects.bulk_create(article_tag_list)
+        print(tag)
+        with transaction.atomic():
+            article_obj = Article.objects.create(title=title, desc=desc, content=content, category_id=category, user=user_obj)
+            article_id = article_obj.pk
+            article_tag_list = []
+            for i in tag:
+                article_tag = Article2Tag(tag_id=int(i), article_id=article_id)
+                article_tag_list.append(article_tag)
+            Article2Tag.objects.bulk_create(article_tag_list)
         return HttpResponse('/blog/cn_backend/')
     else:
-
-        category_list = bold_obj.category_set.all()
-        tag_list = bold_obj.tag_set.all()
-        return render(request, 'add_article.html', {'category_list': category_list, 'tag_list': tag_list})
-
+        try:
+            category_list = bold_obj.category_set.all()
+            tag_list = bold_obj.tag_set.all()
+            return render(request, 'add_article.html', {'category_list': category_list, 'tag_list': tag_list})
+        except Exception as e:
+            print(e)
+            return render(request, 'add_article.html')
 
 @require_login
 def edit_article(request):
