@@ -15,13 +15,8 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "bokexit.settings")
 
 application = get_wsgi_application()
 
-r
 
 
-@receiver(session_deleted)
-def session_expired_callback(sender, **kwargs):
-    # 在这里添加您的函数逻辑，例如调用某个清理函数或执行其他操作
-    pass
 
 
 

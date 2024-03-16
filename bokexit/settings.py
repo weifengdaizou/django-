@@ -12,7 +12,7 @@ SECRET_KEY = "django-insecure-k_)c#8lfd*n+zl7(mxg+uy%72(29w1%clf^q3m%@x$&@s2(mgw
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
+SESSION_COOKIE_AGE = 604800
 ALLOWED_HOSTS = []
 
 # Application definition
