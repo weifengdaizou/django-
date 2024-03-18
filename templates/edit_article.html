@@ -100,15 +100,8 @@
         });
 
         $('#btn_ttt').click(function () {
-            var category_id = $('#category').val();
-            var category = null;
-            if (category_id == -1) {
-                category = $('#category_qt').val();
-                if (category == '')
-                    category_id = null;
-                else
-                    category_id = -1
-            }
+            var category = $('#category').val();
+            var tag = $('#tag').val();
 
             $.ajax({
                 url: '/blog/edit_article/',
@@ -118,11 +111,12 @@
                     title: $('#bt').val(),
                     content: $('#ttt').val(),
                     desc: $('#jj').val(),
-                    category_id: parseInt(category_id),
-                    category: category,
+                    category: $('#category').val(),
+                    tag: $('#tag').val(),
+                    article_id: {{article_obj.pk}}
                 },
-                success: function (data) {
-                    console.log(data)
+                success: function (data){
+                    {#console.log(data)#}
                     location.href = data
                 }
             })

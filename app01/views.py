@@ -29,18 +29,17 @@ def login(request):
         valid_code_print = request.POST.get('valid_code')
         valid_code_true = request.session.get('valid_code')
         print(valid_code_true, valid_code_print)
-        if valid_code_print.upper() == valid_code_true.upper():
-            user = auth.authenticate(username=username, password=pwd)
-            if user:
-                auth.login(request, user)  # 注册用户
-                response['user'] = request.user.username
+        # if valid_code_print.upper() == valid_code_true.upper():
+        user = auth.authenticate(username=username, password=pwd)
+        if user:
+            auth.login(request, user)  # 注册用户
+            response['user'] = request.user.username
 
-                return JsonResponse({'user': username, 'msg': None})
-            else:
-                response['msg'] = '密码错误'
+            return JsonResponse({'user': username, 'msg': None})
         else:
-            print('bb')
-            response['msg'] = '验证码错误'
+            response['msg'] = '密码错误'
+        # else:
+        #     response['msg'] = '验证码错误'
         return JsonResponse(response)
 
     else:
@@ -323,7 +322,23 @@ def add_article(request):
 def edit_article(request):
     user_obj = Userinfo.objects.get(pk=request.user.pk)
     bold_obj = user_obj.bolg
-    print('assss')
+    if request.method == 'POST':
+        title = request.POST.get('title')
+        content = request.POST.get('content')
+        desc = request.POST.get('desc')
+        tag = request.POST.getlist('tag[]')
+        category = request.POST.get('category')
+        article_id = request.POST.get('article_id')
+        with transaction.atomic():
+            Article.objects.filter(pk=article_id).update(title=title, content=content, desc=desc, category_id=category)
+            Article2Tag.objects.filter(article_id=article_id).delete()
+            article_tag_list = []
+            for i in tag:
+                article_tag = Article2Tag(tag_id=int(i), article_id=article_id)
+                article_tag_list.append(article_tag)
+            Article2Tag.objects.bulk_create(article_tag_list)
+        return HttpResponse('/blog/cn_backend/')
+
     article_id = request.GET.get('article_id')
     article_obj = Article.objects.get(pk=article_id)
 
