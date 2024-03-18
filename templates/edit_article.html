@@ -110,7 +110,6 @@
                     category_id = -1
             }
 
-
             $.ajax({
                 url: '/blog/edit_article/',
                 type: 'post',
@@ -120,12 +119,10 @@
                     content: $('#ttt').val(),
                     desc: $('#jj').val(),
                     category_id: parseInt(category_id),
-                    tag_id: parseInt(tag_id),
                     category: category,
-                    tag: tag,
                 },
                 success: function (data) {
-                    {#console.log(data)#}
+                    console.log(data)
                     location.href = data
                 }
             })

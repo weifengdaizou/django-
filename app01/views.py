@@ -34,6 +34,7 @@ def login(request):
             if user:
                 auth.login(request, user)  # 注册用户
                 response['user'] = request.user.username
+
                 return JsonResponse({'user': username, 'msg': None})
             else:
                 response['msg'] = '密码错误'
@@ -322,7 +323,7 @@ def add_article(request):
 def edit_article(request):
     user_obj = Userinfo.objects.get(pk=request.user.pk)
     bold_obj = user_obj.bolg
-
+    print('assss')
     article_id = request.GET.get('article_id')
     article_obj = Article.objects.get(pk=article_id)
 
